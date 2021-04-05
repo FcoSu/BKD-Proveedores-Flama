@@ -5,7 +5,8 @@ public class URLs {
 	public final static String inputURL = "/api/v1/";
 	public final static String finanzaAPI = "http://localhost:8084/finanza";
 	
-    
+    public final static String baseDal = "http://localhost:8083/";
+	
 	public final static String AreaInsert = baseDal + "area/AreaIngresar";
 	public final static String AreaList = baseDal + "area/AreasListar";
 	public final static String AreaSearch = baseDal + "area/AreaBuscarporId";
