@@ -1,6 +1,8 @@
 package com.everis.latam.BKDProveedoresFlama.service.implement;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -13,9 +15,11 @@ import org.springframework.web.client.RestTemplate;
 import com.everis.latam.BKDProveedoresFlama.URLs.URLs;
 import com.everis.latam.BKDProveedoresFlama.dto.AreaDto;
 import com.everis.latam.BKDProveedoresFlama.dto.CentroCostoDto;
+import com.everis.latam.BKDProveedoresFlama.dto.EstadoSolicitudDto;
 import com.everis.latam.BKDProveedoresFlama.dto.ProveedorDto;
 import com.everis.latam.BKDProveedoresFlama.dto.ResolucionDto;
-import com.everis.latam.BKDProveedoresFlama.dto.ResponseAdminDto;
+import com.everis.latam.BKDProveedoresFlama.dto.ResolucionResponseDto;
+import com.everis.latam.BKDProveedoresFlama.dto.ResponseDto;
 import com.everis.latam.BKDProveedoresFlama.dto.SolicitanteDto;
 import com.everis.latam.BKDProveedoresFlama.dto.SolicitudDto;
 import com.everis.latam.BKDProveedoresFlama.dto.WaiverDto;
@@ -124,12 +128,53 @@ public class BackEndServiceImplement implements BackEndService {
 	
 
 	@Override
-	public ResolucionDto RechazarSolicitud(SolicitudDto solicitudFinal) {
+	public ResponseDto RechazarSolicitud(SolicitudDto solicitudFinal) {
+		SolicitudDto mod = solicitudFinal;
+		ResolucionDto Aux = new ResolucionDto();
 		ResolucionDto rechazo = new ResolucionDto();
+		try {
+		Aux = rest.getForEntity(URLs.ResolucionLast , ResolucionDto.class).getBody();
+		rechazo.setIdResolucion(Aux.getIdResolucion()+1);
+		System.out.println("Resolucion traida: " + Aux);
+		rechazo.setFechaResolucion( new Date());
+		rechazo.setComentario("Solicitud rechazada por no cumplir con los requisitos");
+		rechazo.setMontoTotal(0);
+		rechazo.setSolicitudId(solicitudFinal.getSolicitudId());
+		}catch (Exception e) {
+			rechazo.setIdResolucion(1);
+			rechazo.setMontoTotal(0);
+			rechazo.setSolicitudId(solicitudFinal.getSolicitudId());
+			rechazo.setFechaResolucion(new Date());
+			rechazo.setComentario("Solicitud rechazada por no cumplir con los requisitos");
+		}
+		
+		HttpEntity<ResolucionDto> resolucionEntity = new HttpEntity<>(rechazo, headers);
+		ResolucionDto BD = rest.exchange(URLs.ResolucionInsert, HttpMethod.POST, resolucionEntity, ResolucionDto.class).getBody();
+		
+		HttpEntity<SolicitudDto> solicitudEntity = new HttpEntity<>(mod ,headers);
+		SolicitudDto Mod = rest.exchange(URLs.SolicitudUpdate + mod.getSolicitudId()+ "&nuevoEstado=" + 3, HttpMethod.POST, solicitudEntity, SolicitudDto.class ).getBody();
+		
+		EstadoSolicitudDto estado = rest.getForEntity(URLs.EstadoSolicitudSearch + 3, EstadoSolicitudDto.class).getBody();
+		
+		ResponseDto respuesta = new ResponseDto();
+		respuesta = ArmarRespuestaAdmin(estado, BD);
 		//consulta a la bd por el ultimo registro
 		//armar resolucion con id ultimo registro + 1
 		// TODO Auto-generated method stub
-		return rechazo;
+		return respuesta;
+	}
+
+	private ResponseDto ArmarRespuestaAdmin(EstadoSolicitudDto estado, ResolucionDto BD) {
+		ResponseDto respuesta = new ResponseDto();
+		ResolucionResponseDto res= new ResolucionResponseDto();
+		
+		res.setIdResolucion(BD.getIdResolucion());
+		res.setComentario(BD.getComentario());
+		res.setMontoTotal(BD.getMontoTotal());
+		respuesta.setStatus(estado.getEstado());
+		respuesta.setResolucion(res);
+		
+		return respuesta;
 	}
 
 	private SolicitudDto armarSolicitud(ProveedorDto proveedorBD, AreaDto areaBD, SolicitanteDto solicitanteBD,

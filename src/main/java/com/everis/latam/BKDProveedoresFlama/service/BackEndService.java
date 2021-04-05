@@ -5,7 +5,8 @@ import org.springframework.stereotype.Service;
 import com.everis.latam.BKDProveedoresFlama.dto.AreaDto;
 import com.everis.latam.BKDProveedoresFlama.dto.ProveedorDto;
 import com.everis.latam.BKDProveedoresFlama.dto.ResolucionDto;
-import com.everis.latam.BKDProveedoresFlama.dto.ResponseAdminDto;
+import com.everis.latam.BKDProveedoresFlama.dto.ResolucionResponseDto;
+import com.everis.latam.BKDProveedoresFlama.dto.ResponseDto;
 import com.everis.latam.BKDProveedoresFlama.dto.SolicitanteDto;
 import com.everis.latam.BKDProveedoresFlama.dto.SolicitudDto;
 
@@ -22,6 +23,6 @@ public interface BackEndService {
 
 	boolean ConsultarAprobador(SolicitanteDto solicitante);
 
-	ResolucionDto RechazarSolicitud(SolicitudDto solicitudFinal);
+	ResponseDto RechazarSolicitud(SolicitudDto solicitudFinal);
 
 }

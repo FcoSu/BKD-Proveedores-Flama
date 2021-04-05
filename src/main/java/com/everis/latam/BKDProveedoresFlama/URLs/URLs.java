@@ -16,7 +16,7 @@ public class URLs {
 	
 	
 	public final static String EstadoSolicitudList= baseDal + "EstadoSolicitud/EstadoSolicitudListar";
-	public final static String EstadoSolicitudSearch = baseDal +  "EstadoSolicitud/EstadoSolicitudBuscarId";
+	public final static String EstadoSolicitudSearch = baseDal +  "EstadoSolicitud/EstadoSolicitudBuscarId?id=";
 	
 	public final static String ProveedorInsert = baseDal + "Proveedor/ProveedorIngresar";
 	public final static String ProveedorList = baseDal + "Proveedor/ProveedorListar";
@@ -24,12 +24,13 @@ public class URLs {
 	
 	public final static String ResolucionInsert = baseDal + "Resolucion/ResolucionIngresar";
 	public final static String ResolucionSearch = baseDal + "Resolucion/ResolucionBuscarId";
+	public final static String ResolucionLast = baseDal + "Resolucion/ResolucionBuscarUltimo";
 	
 	public final static String SolicitanteInsert = baseDal + "Solicitante/SolicitanteIngresar";
 	public final static String SolicitanteSearch = baseDal + "Solicitante/SolicitanteBuscarId";
 	
 	public final static String SolicitudInsert = baseDal + "Solicitud/SolicitudIngresar";
-	public final static String SolicitudUpdate = baseDal + "Solicitud/SolicitudModificar";
+	public final static String SolicitudUpdate = baseDal + "Solicitud/SolicitudModificar?id=";
 	public final static String SolicitudList = baseDal + "Solicitud/SolicitudListar";
 	public final static String SolicitudSearch = baseDal + "Solicitud/SolicitudBuscarId";
 	public final static String SolicitudListDate = baseDal + "Solicitud/SolicitudListarPorFechaAnterior";
