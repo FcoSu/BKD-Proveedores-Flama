@@ -45,7 +45,7 @@ public class RequestController {
 
 			
 		ProveedorDto p = new ProveedorDto();
-		p = req.getProveedor();
+		p = req.getProveedor();		
 		log.info("proveedor: "+p);
 		
 		
