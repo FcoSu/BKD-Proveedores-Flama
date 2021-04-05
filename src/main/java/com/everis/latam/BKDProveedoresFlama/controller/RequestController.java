@@ -27,12 +27,13 @@ import com.everis.latam.BKDProveedoresFlama.dto.ResponseAdminDto;
 import com.everis.latam.BKDProveedoresFlama.dto.SolicitanteDto;
 import com.everis.latam.BKDProveedoresFlama.dto.SolicitudDto;
 import com.everis.latam.BKDProveedoresFlama.dto.requestDTO;
+import com.everis.latam.BKDProveedoresFlama.service.BackEndService;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api/v2")
 public class RequestController {
 	
 	private HttpHeaders headers = new HttpHeaders();
@@ -40,38 +41,57 @@ public class RequestController {
 	@Autowired
 	private RestTemplate restTemplate;
 	
-	@RequestMapping(value = URLs.inputURL, method = RequestMethod.POST, consumes= "application/json")
+	@Autowired
+	BackEndService backendservice;
+	
+	@RequestMapping(value = "/RegistroDatos", method = RequestMethod.POST, consumes= "application/json")
 	public ResponseEntity<ResponseAdminDto> ServicioPeticion(@RequestBody requestDTO req) throws BadRequestException{
 
-			
-		ProveedorDto p = new ProveedorDto();
-		p = req.getProveedor();		
-		log.info("proveedor: "+p);
+		AreaDto area = new AreaDto();
+		ProveedorDto prov = new ProveedorDto();
+		SolicitanteDto solicitante = new SolicitanteDto();
+		SolicitudDto solicitud = new SolicitudDto();
+		String descripcion = null;
+		SolicitudDto solicitudFinal = new SolicitudDto();
+		
+		boolean MontoEnRango = false;
+		boolean AprobadorEnOrden = false;
+		
+		//mapeo
+		prov = req.getProveedor();
+		log.info("Mapeo de proveedor, proveedor: " + prov);
+		area = req.getArea();
+		log.info("Mapeo de area, area: " + area);
+		solicitante= req.getSolicitante();
+		log.info("Mapeo de Solicitante, solicitante: " + solicitante);
+		solicitud = req.getSolicitud();
+		log.info("Mapeo de solicitud, solicitud: "+ solicitud);
+		descripcion = req.getDescripcion();
+		log.info("Mapeo de Descripcion, descripcion: " + descripcion);
 		
 		
-		AreaDto a = new AreaDto();
-		a = req.getArea();
-		log.info("area: "+a);
 		
-		SolicitanteDto ste = new SolicitanteDto();
-		ste = req.getSolicitante();
-		log.info("solicitante: "+ste);
 		
-
-		SolicitudDto stud = new SolicitudDto();
-		stud = req.getSolicitud();
-		log.info("solicitud: "+stud);
+		solicitudFinal = backendservice.obtenerarea(prov, area, solicitante, solicitud, descripcion);
 		
-		//objeto completo para enviarlo a dal
-		requestDTO reqDto = new requestDTO();
-		reqDto.setArea(a);
-		reqDto.setDescripcion(req.getDescripcion());
-		reqDto.setProveedor(p);
-		reqDto.setSolicitante(ste);
-		reqDto.setSolicitud(stud);
+		MontoEnRango = backendservice.ConsultarMontoenRango(area, solicitudFinal);
+		if (MontoEnRango == false && solicitudFinal.getPrioridad() ==1) {
+			AprobadorEnOrden = backendservice.ConsultarAprobador(solicitante);
+		}
 		
-		log.info("Request completa = "+reqDto);
-	
+		log.info("esta en rango: "+ MontoEnRango);
+		log.info("waiver: " + AprobadorEnOrden);
+		log.info("Solicitud completa = "+solicitudFinal);
+		
+		//comprobacion si no cumple con los requisitos se rechaza
+		if(!MontoEnRango && !AprobadorEnOrden ) {
+			ResolucionDto rechazada =  backendservice.RechazarSolicitud(solicitudFinal);
+			//enviar rechazo a servicio, el RechazarSolicitud debe retornar un resolucion dto con el cual armar el response a servicio
+		}
+		
+		
+		
+		/*
 		//objeto a enviar a finanzas
 		FinanzaRequestDto finanzareqDto = new FinanzaRequestDto();
 		
@@ -117,9 +137,10 @@ public class RequestController {
 		} catch (Exception e) {
 			throw new BadRequestException(ExceptionPost.error);
 		}
+		*/
 		
 		
-	
+	return null;
 		
 		
 		
