@@ -22,6 +22,8 @@ import com.everis.latam.BKDProveedoresFlama.dto.FinanzaRequestDto;
 import com.everis.latam.BKDProveedoresFlama.dto.FinanzaResponseDto;
 import com.everis.latam.BKDProveedoresFlama.dto.ProveedorDto;
 import com.everis.latam.BKDProveedoresFlama.dto.ResolucionDto;
+import com.everis.latam.BKDProveedoresFlama.dto.ResolucionResponseDto;
+import com.everis.latam.BKDProveedoresFlama.dto.ResponseAdminDto;
 import com.everis.latam.BKDProveedoresFlama.dto.SolicitanteDto;
 import com.everis.latam.BKDProveedoresFlama.dto.SolicitudDto;
 import com.everis.latam.BKDProveedoresFlama.dto.requestDTO;
@@ -39,7 +41,7 @@ public class RequestController {
 	private RestTemplate restTemplate;
 	
 	@RequestMapping(value = URLs.inputURL, method = RequestMethod.POST, consumes= "application/json")
-	public ResponseEntity<FinanzaResponseDto> ServicioPeticion(@RequestBody requestDTO req) throws BadRequestException{
+	public ResponseEntity<ResponseAdminDto> ServicioPeticion(@RequestBody requestDTO req) throws BadRequestException{
 
 			
 		ProveedorDto p = new ProveedorDto();
@@ -101,10 +103,17 @@ public class RequestController {
 			
 			FinanzaResponseDto res = restTemplate.exchange(URLs.finanzaAPI, HttpMethod.POST, entity, FinanzaResponseDto.class).getBody();
 			
+			ResolucionResponseDto rs = new ResolucionResponseDto();
+			rs.setComentario("comentariozzz");
+			rs.setIdResolucion(res.getIdResolucion());
+			rs.setMontoTotal(res.getMontoTotal());
 			
+			ResponseAdminDto response = new ResponseAdminDto();
+			response.setStatus(res.getEstatus());
+			response.setResolucion(rs);
 			
-			log.info("RESPONDIDO = " + res);
-			return new ResponseEntity<>(res, HttpStatus.OK);
+			log.info("RESPONDIDO = " + response);
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (Exception e) {
 			throw new BadRequestException(ExceptionPost.error);
 		}
